@@ -6,6 +6,12 @@ if ! command -v xclip &> /dev/null; then
     exit 1
 fi
 
+# Check if xsel is installed
+if ! command -v xsel &> /dev/null; then
+    echo "xsel is not installed. Please install it to continue."
+    exit 1
+fi
+
 while getopts "hl:s:" option
 do
     case "${option}"
