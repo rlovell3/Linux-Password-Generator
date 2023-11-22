@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check if xclip is installed
+if ! command -v xclip &> /dev/null; then
+    echo "xclip is not installed. Please install it to continue."
+    exit 1
+fi
+
 while getopts "hl:s:" option
 do
     case "${option}"
@@ -42,32 +48,56 @@ fi
 
 if [ "$style" == "A" ] # Same as Default:  letters, numbers, NO SYMBOLS
 then 
-    LC_ALL=C tr -dc 'A-Za-z0-9' </dev/random | head -c $LENGTH1 ; echo
+    PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/random | head -c $LENGTH1)
+    echo "Password: $(echo "$PASSWORD" | tr 'A-Za-z0-9' 'x')"
 
 elif [ "$style" == "S" ]  # SYMBOLS subset, Letters, Numbers
 then
-    LC_ALL=C tr -dc 'A-Za-z0-9!@+*=#$%&' </dev/random | head -c $LENGTH1 ; echo
+    PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9!@+*=#$%&' </dev/random | head -c $LENGTH1)
+    echo "Password: $(echo "$PASSWORD" | tr 'A-Za-z0-9!@+*=#$%&' 'x')"
 
 elif [ "$style" == "H" ]  #  HYPHENS every 4th character, Letters, Numbers
 then
-    LC_ALL=C tr -dc 'A-Za-z0-9' </dev/random | head -c $LENGTH1 | fold -w4 | paste -sd- ; echo
+    PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/random | head -c $LENGTH1 | fold -w4 | paste -sd-)
+    echo "Password: $(echo "$PASSWORD" | tr 'A-Za-z0-9' 'x')"
 
 elif [ "$style" == "L" ]  # Letters only  A-Z a-z
  then
-    LC_ALL=C tr -dc 'A-Za-z' </dev/random | head -c $LENGTH1 ; echo
+    PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z' </dev/random | head -c $LENGTH1 )
+    echo "Password: $(echo "$PASSWORD" | tr 'A-Za-z' 'x')"
 
 elif [ "$style" == "U" ]  # Uppercase Letters only A-Z
 then
-    LC_ALL=C tr -dc 'A-Z' </dev/random | head -c $LENGTH1 ; echo    
+    PASSWORD=$(LC_ALL=C tr -dc 'A-Z' </dev/random | head -c $LENGTH1 )    
+    echo "Password: $(echo "$PASSWORD" | tr 'A-Z' 'x')"
 
 elif [ "$style" == "C" ]  # Comprehensive.  All Printable ASCII characters
 then
-    LC_ALL=C tr -dc '[:print:]' </dev/random | head -c $LENGTH1 ; echo
+    PASSWORD=$(LC_ALL=C tr -dc '[:print:]' </dev/random | head -c $LENGTH1 )
+    echo "Password: $(echo "$PASSWORD" | tr '[:print:]' 'x')"
 
 else  # DEFAULT  Letters, Numbers, NO SYMBOLS (same as "A")
-    LC_ALL=C tr -dc 'A-Za-z0-9' </dev/random | head -c $LENGTH1 ; echo 
+    PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/random | head -c $LENGTH1 )
+    echo "Password: $(echo "$PASSWORD" | tr 'A-Za-z0-9' 'x')"
+    
 fi
 
+# Copy the password to the clipboard
+echo "$PASSWORD" | xclip -selection clipboard
+
+# Clear the clipboard after 30 seconds
+#(
+#    sleep 40
+#    echo -n | xclip -selection clipboard
+#) &
+
+# Clear the clipboard after 40 seconds and perform cleanup
+(
+    sleep 40
+    xsel -bc && uptime | xclip && clear
+) &
+
+echo "The password will be cleared from the clipboard in 40 seconds."
 
 # note on dev/random and dev/urandom from the luks manpage:
 #     Using /dev/random on a  system  without  enough entropy 
