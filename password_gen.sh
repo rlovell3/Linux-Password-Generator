@@ -115,19 +115,15 @@ echo "The password will be cleared from the clipboard in 40 seconds."
 #     is out of scope  for a mere man-page.  See urandom(4) for more information.
 
 #  CHANGELOG
-# 2023-10-27:  Cleaned up documentation.  Added Comprehensive style.
-# 2022-08-08:  as this comes from the luks manpage, I'm switching to /dev/random
-# in the code above (and no longer using /dev/urandom).
-
-# 2022-08-08: adding cases "S" and "U" to the style choices.
-
-
-
+# 2023-11-22: Major update. Now, everything runs silently. Hidden password  
+#             and copy/paste functionality.   
+# 2023-10-27: Cleaned up documentation.  Added "C" Comprehensive style.
+# 2022-08-08: as this comes from the luks manpage, I'm switching to /dev/random
+#             (and no longer using /dev/urandom).
+#             and adding cases "S" and "U" to the style choices.
 
 
 
-# interesting snippets from around the net:
-#  openssl rand -base64 16
-# for i in {1..8} ; do head -$(expr $(head -c7 /dev/urandom | od -An -t dL) % $(wc -l < /usr/share/dict/british-english)) /usr/share/dict/british-english | tail -1 ; done
-# od -An -x /dev/urandom | head -1
+
+
 #
