@@ -1,51 +1,57 @@
 # Linux Password Generator
 
+## Default usage
 
-## Default usage:
-
-```
+```bash
     ./password_gen.sh
 ```
-  The default password length is 36 characters and the default style includes Letters A-Z a-z and numbers 0-9.  
-  Both of those defaults are easy to tweak using the optional flags.   
-  
 
-## Optional flags:
+  The default password length is 36 characters and the default style includes Letters A-Z a-z and numbers 0-9.  
+  Both of those defaults are easy to tweak using the optional flags.  
+  
+## Optional flags  
+
 #### Use the optional -h flag for help.
+
+```bash
+./password_gen.sh -h
 ```
-$ ./password_gen.sh -h
-```
+
 #### Use the optional -l flag to set the password length.
+```bash
+    ./password_gen.sh -l20   #Sets password length to 20 characters.  
+    ./password_gen.sh -l50   #Sets password length to 50 characters.  
 ```
-    $  ./password_gen.sh -l20   #Sets password length to 20 characters.  
-    $  ./password_gen.sh -l50   #Sets password length to 50 characters.  
-```
+
 #### Use the optional -s flag to modify the character-set used to create the password:
 ```
-    $  ./password_gen.sh -sA (same as default.  Letters A-za-z numbers 0-9 No symbols)
-    $  ./password_gen.sh -sS (Symbols subset!@+*=#$%&, Letters and Numbers).
-    $  ./password_gen.sh -sH (Hyphens every 4 characters, Letters and Numbers)
-    $  ./password_gen.sh -sL (Letters only)
-    $  ./password_gen.sh -sU (UPPERCASE LETTERS ONLY)
-    $  ./password_gen.sh -sC (Comprehensive:  all printable ASCII characters)
+    ./password_gen.sh -sA (same as default.  Letters A-za-z numbers 0-9 No symbols)
+    ./password_gen.sh -sS (Symbols subset!@+*=#$%&, Letters and Numbers).
+    ./password_gen.sh -sH (Hyphens every 4 characters, Letters and Numbers)
+    ./password_gen.sh -sL (Letters only)
+    ./password_gen.sh -sU (UPPERCASE LETTERS ONLY)
+    ./password_gen.sh -sC (Comprehensive:  all printable ASCII characters)
 ```
+
 White space doesn't matter. These are equivalent:  
 ```
-    $  ./password_gen.sh -s H   or ./password_gen.sh -sH
+    "./password_gen.sh -s H"   is the same as this:  "./password_gen.sh -sH"
 ```
+
 ## Combine Flags:
 Use both the -l flag and the -s flag to tailor your password.  
   Create password of length 40 with Style: Symbols (includes letters and numbers):
+```bash
+    ./password_gen.sh -l40 -sS
 ```
-    $  ./password_gen.sh -l40 -sS
-```
+
   Create password of length 30 with hyphens
-```
-    $  ./password_gen.sh -l30 -sH
+```bash
+    ./password_gen.sh -l30 -sH
 ```
   Create password of length 50 using UPPERCASE LETTERS ONLY:
-```
-    $  ./password_gen.sh -l50 -sU
+```bash
+    ./password_gen.sh -l50 -sU
 ```
 
 ## Installation:
@@ -55,14 +61,14 @@ Use both the -l flag and the -s flag to tailor your password.
 - Install xclip and xsel as described below.
 
 ## Extra notes about the Linux clipboard:
-In Linux, when you copy a string, it will stay in the clipboard buffer until you copy something new. This script copies the password to your clipboard for 40 seconds. Afterward, it clears the clipboard and pastes the uptime of your current boot into the clipboard simply to have something to paste into it, covering up all traces of your password.  
+In Linux, when you copy a string, it will stay in the clipboard buffer until you copy something new. This script copies the password to your clipboard for 40 seconds. Afterward, it clears the clipboard and pastes the uptime of your current boot into the clipboard simply to have something to overwrite it with, covering up all traces of your password.  
 
 ## Tools for the cleanup:  
-I use two Linux command line tools:  **xsel** and **xclip**
+I use two Linux command line tools to help with cleanup and copy/pasting the hidden password:  **xsel** and **xclip**
 ```
   sudo apt install xsel xclip
 ```
-This command beolw eliminates all copies of your password that may be sitting around in both the clipboard and any shell variable:  
+This command below eliminates all copies of your password that may be sitting around in both the clipboard and any shell variable:  
 ```
 xsel -bc && uptime | xclip && clear
 ```
@@ -94,7 +100,7 @@ man srm
 srm file-to-delete
 ```
 ### Third-Party Password Managers
-Seriously, if you were a big-time hacker, password managers would be a primary target for you.  Forever. I avoid all third-party password manager thingies.  Sorry.  I know a lot of people need them, but if you are this deep into this document, you don't need them, and should not waste your time on them.  
+Password managers are a primary target for industrial-strength hacking teams. I avoid all third-party password manager thingies.  Sorry.  I know a lot of people need them, but if you are this deep into this document, you don't need them, and should not waste your time on them.  
 
 ### Changelog
 2023-11-22: Adopted auto-clipboard functionality and cleanup.
