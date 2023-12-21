@@ -103,7 +103,7 @@ srm file-to-delete
 Password managers are a primary target for industrial-strength hacking teams. I avoid all third-party password manager thingies.  Sorry.  I know a lot of people need them, but if you are this deep into this document, you don't need them, and should not waste your time on them.  
 
 ### Changelog
-2023-11-22: Adopted auto-clipboard functionality and cleanup.
+2023-11-22: Adopted auto-clipboard functionality and cleanup.  
 2023-10-27: Updated README.  Documented script. Cleaned up order, and added COMPREHENSIVE style to script.  
 2023-09-15: Tweaked README.  Still learning markup formatting rules...  
 2023-06-30:Changed H flag to K.  Tweaked notes throughout.  
