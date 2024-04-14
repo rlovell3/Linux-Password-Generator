@@ -1,120 +1,125 @@
 #!/bin/bash
 
-# Check if xclip is installed
-if ! command -v xclip &> /dev/null; then
-    echo "xclip is not installed. Please install it to continue."
-    exit 1
-fi
+# Define help message
+HELP_MESSAGE="Generate a significantly random password.
+Default Usage:  ./password_gen.sh
+HELP:           ./password_gen.sh -h
+Modified Usage: ./password_gen.sh [-l length] [-s style]
+Automation:     ./password_gen.sh -a [can add optional -l and -s flags]
 
-# Check if xsel is installed
-if ! command -v xsel &> /dev/null; then
-    echo "xsel is not installed. Please install it to continue."
-    exit 1
-fi
 
-while getopts "hl:s:" option
+Optional arguments change length -l or style -s as follows:
+  -l LENGTH:  length of password (default 36)
+  -s style:   style of password (if ommitted: default A)
+     A:  (The Default) Letters A-Z a-z  Numbers 0-9 NO SYMBOLS)
+     S:  Symbols subset !@+*=#$%&  Letters A-Z a-z  Numbers 0-9
+     H:  Hyphens every 4 characters Letters A-Z a-z Numbers 0-9
+     L:  letters only  A-Z a-z
+     U:  uppercase letters only A-Z
+     C:  Comprehensive.  All printable ASCII characters
+
+Examples:  
+DEFAULT  password_gen.sh           (36 characters, Letters, Numbers, NO SYMBOLS)
+^LENGTH  password_gen.sh -l20      (change length to 20, keep default style)
+^ STYLE  password_gen.sh -sS       (change Style: Symbols subset, Letters and Numbers)
+^ STYLE  password_gen.sh -sH       (change Stlye: HYPHENS every 4 chars, Letters and Numbers)
+^ STYLE  password_gen.sh -sL       (change Style: Letters A-Za-z)
+^ BOTH   password_gen.sh -l40 -sC  (change length to 40, Style: Comprehensive)"
+
+
+AUTO=false
+LOOP_COUNT=5
+
+# Check for --help option
+for arg in "$@"
+do
+    if [ "$arg" == "--help" ]; then
+        # Print help message
+        echo "$HELP_MESSAGE"
+        exit 0
+    fi
+done
+
+while getopts "ahl:s:" option
 do
     case "${option}"
         in
+        a)AUTO=true
+          LOOP_COUNT=1;;
         l)length=${OPTARG};;
         s)style=${OPTARG};;
-        h)echo "Generate a significantly random password."
-          echo " Default Usage:  ./password_gen.sh"
-          echo "          HELP:  ./password_gen.sh -h"
-          echo "Modified Usage: ./password_gen.sh [-l length] [-s style]"
-          echo ""
-          echo "Optional arguments change length -l or style -s as follows:"
-          echo "  -l LENGTH:  length of password (default 36)"
-          echo "  -s style:   style of password (if ommitted: default A)"
-          echo "     A:  (The Default) Letters A-Z a-z  Numbers 0-9 NO SYMBOLS)"
-          echo "     S:  Symbols subset !@+*=#$%&  Letters A-Z a-z  Numbers 0-9"
-          echo "     H:  Hyphens every 4 characters Letters A-Z a-z Numbers 0-9"
-          echo "     L:  letters only  A-Z a-z"
-          echo "     U:  uppercase letters only A-Z"
-          echo "     C:  Comprehensive.  All printable ASCII characters"
-          echo ""
-          echo " Examples:  " 
-          echo " DEFAULT  password_gen.sh           (36 characters, Letters, Numbers, NO SYMBOLS)"
-          echo " ^LENGTH  password_gen.sh -l20      (change length to 20, keep default style)"
-          echo " ^ STYLE  password_gen.sh -sS       (change Style: Symbols subset, Letters and Numbers)"
-          echo " ^ STYLE  password_gen.sh -sH       (change Stlye: HYPHENS every 4 chars, Letters and Numbers)"
-          echo " ^ STYLE  password_gen.sh -sL       (change Style: Letters A-Za-z)"
-          echo " ^ STYLE  password_gen.sh -sU       (change Style: Uppercase letters only A-Z)"
-          echo " ^  BOTH  password_gen.sh -l40 -sC  (change length to 40, Style: Comprehensive)"
+        h)echo "$HELP_MESSAGE"
           exit 0;;
     esac
 done
 
-if [ "$length"  ]
-then
-  LENGTH1=$length
+# Establish password length 
+if [ "$length" ]; then
+    if [ "$length" -lt 8 ] || [ "$length" -gt 100 ]; then
+        echo "Error: Length must be between 8 and 100."
+        exit 1
+    fi
+    LENGTH1=$length
 else
-  LENGTH1="36"
+    LENGTH1="36"
 fi
 
-if [ "$style" == "A" ] # Same as Default:  letters, numbers, NO SYMBOLS
-then 
-    PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/random | head -c $LENGTH1)
-    echo "Password: $(echo "$PASSWORD" | tr 'A-Za-z0-9' 'x')"
+# Primary loop of the program
 
-elif [ "$style" == "S" ]  # SYMBOLS subset, Letters, Numbers
-then
-    PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9!@+*=#$%&' </dev/random | head -c $LENGTH1)
-    echo "Password: $(echo "$PASSWORD" | tr 'A-Za-z0-9!@+*=#$%&' 'x')"
+for i in $(seq 1 $LOOP_COUNT)
+do
 
-elif [ "$style" == "H" ]  #  HYPHENS every 4th character, Letters, Numbers
-then
-    PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/random | head -c $LENGTH1 | fold -w4 | paste -sd-)
-    echo "Password: $(echo "$PASSWORD" | tr 'A-Za-z0-9' 'x')"
+    if [ "$style" == "A" ] # Same as Default:  letters, numbers, NO SYMBOLS
+    then 
+        PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/random | head -c $LENGTH1)
 
-elif [ "$style" == "L" ]  # Letters only  A-Z a-z
- then
-    PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z' </dev/random | head -c $LENGTH1 )
-    echo "Password: $(echo "$PASSWORD" | tr 'A-Za-z' 'x')"
+    elif [ "$style" == "S" ]  # SYMBOLS subset, Letters, Numbers; Begin/end with letter.
+    then
+        FIRST_CHAR=$(LC_ALL=C tr -dc 'A-Za-z' </dev/random | head -c 1)
+        MIDDLE=$(LC_ALL=C tr -dc 'A-Za-z0-9!@+*=#$%&' </dev/random | head -c $(($LENGTH1-2)))
+        LAST_CHAR=$(LC_ALL=C tr -dc 'A-Za-z' </dev/random | head -c 1)
+        PASSWORD="${FIRST_CHAR}${MIDDLE}${LAST_CHAR}"
 
-elif [ "$style" == "U" ]  # Uppercase Letters only A-Z
-then
-    PASSWORD=$(LC_ALL=C tr -dc 'A-Z' </dev/random | head -c $LENGTH1 )    
-    echo "Password: $(echo "$PASSWORD" | tr 'A-Z' 'x')"
+    elif [ "$style" == "H" ]  #  HYPHENS every 4th character, Letters, Numbers
+    then
+        PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/random | head -c $LENGTH1 | fold -w4 | paste -sd-)
 
-elif [ "$style" == "C" ]  # Comprehensive.  All Printable ASCII characters
-then
-    PASSWORD=$(LC_ALL=C tr -dc '[:print:]' </dev/random | head -c $LENGTH1 )
-    echo "Password: $(echo "$PASSWORD" | tr '[:print:]' 'x')"
+    elif [ "$style" == "L" ]  # Letters only  A-Z a-z
+    then
+        PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z' </dev/random | head -c $LENGTH1 )
 
-else  # DEFAULT  Letters, Numbers, NO SYMBOLS (same as "A")
-    PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/random | head -c $LENGTH1 )
-    echo "Password: $(echo "$PASSWORD" | tr 'A-Za-z0-9' 'x')"
+    elif [ "$style" == "U" ]  # Uppercase Letters only A-Z
+    then
+        PASSWORD=$(LC_ALL=C tr -dc 'A-Z' </dev/random | head -c $LENGTH1 )    
+
+    elif [ "$style" == "C" ]  # Comprehensive.  All Printable ASCII characters
+    then
+        FIRST_CHAR=$(LC_ALL=C tr -dc 'A-Za-z' </dev/random | head -c 1)
+        MIDDLE=$(LC_ALL=C tr -dc '[:print:]' </dev/random | head -c $(($LENGTH1-2)))
+        LAST_CHAR=$(LC_ALL=C tr -dc 'A-Za-z' </dev/random | head -c 1)
+        PASSWORD="${FIRST_CHAR}${MIDDLE}${LAST_CHAR}"
+
+    else  # DEFAULT  Letters, Numbers, NO SYMBOLS (same as "A")
+        PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/random | head -c $LENGTH1 )
+    fi
     
-fi
+    # Check if AUTO is true
+    if $AUTO; then
+        # If AUTO is true, print the password without the prefix and quotation marks
+        echo $PASSWORD
+    else
+        # If AUTO is false, print the password with the prefix and quotation marks
+        echo "Password $i: \"$PASSWORD\""
+    fi
+done
 
-# Copy the password to the clipboard
-echo "$PASSWORD" | xclip -selection clipboard
-
-# Clear the clipboard after 30 seconds
-#(
-#    sleep 40
-#    echo -n | xclip -selection clipboard
-#) &
-
-# Clear the clipboard after 40 seconds and perform cleanup
-(
-    sleep 40
-    xsel -bc && uptime | xclip && clear
-) &
-
-echo "The password will be cleared from the clipboard in 40 seconds."
-
-# note on dev/random and dev/urandom from the luks manpage:
-#     Using /dev/random on a  system  without  enough entropy 
-#     sources can cause luksFormat to block until the requested 
-#     amount of random data is gathered. In a low-entropy situation 
-#     (embedded system), this can take a very long time  and  potentially
-#     forever. At the same time, using /dev/urandom in a low-entropy situation
-#     will produce low-quality keys. This is a serious problem, but solving it 
-#     is out of scope  for a mere man-page.  See urandom(4) for more information.
 
 #  CHANGELOG
+# 2024-04-14: - Deprecated cleanup of clipboard and terminal. Now focuses on password generation.
+#             - Changed S and C styles to use first/last letter restriction.
+#             - Loop to generate and print 5 passwords.
+#             - Print password within added quotation marks.
+#             - Added AUTO mode for automated operation.
 # 2023-11-22: Major update. Now, everything runs silently. Hidden password  
 #             and copy/paste functionality.   
 # 2023-10-27: Cleaned up documentation.  Added "C" Comprehensive style.
